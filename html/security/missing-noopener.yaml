@@ -10,17 +10,16 @@ rules:
         - A01:2021 - Broken Access Control
       confidence: HIGH
     patterns:
-      - pattern: |
-          <a ... target="_blank" ... >
-      - pattern-not-inside: |
-          <a ... rel="... noopener ..." ... >
-    paths:
-      include:
-        - "*.html"
+      - pattern: <a target="$TARGET" href="$HREF">...</a>
+      - metavariable-regex:
+          metavariable: $HREF
+          regex: (https?:)?//
+      - pattern-not-inside: <a rel="noopener">...</a>
+      - pattern-not-inside: <a rel="noreferrer">...</a>
     message: >-
-      This anchor tag with 'target="_blank"' is missing 'noopener'.
-      A page opened with 'target="_blank"' can access the window object of the origin page.
+      This anchor tag with 'target="$TARGET"' is missing 'noopener'.
+      A page opened with 'target="..."' can access the window object of the origin page.
       This means it can manipulate the 'window.opener' property, which could redirect the origin page to a malicious URL.
       This is called reverse tabnabbing. To prevent this, include 'rel=noopener' on this tag
     severity: WARNING
-    languages: [generic]
+    languages: [html]
